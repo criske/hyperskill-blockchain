@@ -6,7 +6,7 @@ import java.util.Date;
 
 public class Miner implements VCEntity {
 
-    private int vcBalance = 100;
+    private volatile int vcBalance = 100;
 
     private final BlockChain blockChain;
     private final Hasher hasher;
@@ -26,7 +26,9 @@ public class Miner implements VCEntity {
             Block block = BlockGenerator.generate(name, nextBlockInfo, timestamp, hasher);
             boolean added = blockChain.add(block);
             if (added) {
-                vcBalance += 100;
+                synchronized (Miner.this) {
+                    vcBalance += 100;
+                }
                 block.minerRewardInfo = name + " gets 100 VC";
                 block.nStatus = blockChain.nStatus();
             }
